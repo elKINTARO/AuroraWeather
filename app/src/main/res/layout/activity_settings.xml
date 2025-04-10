@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_title"
+            android:textSize="24sp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/temperature_units"
+            android:layout_marginTop="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTemperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbTempC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="°C" />
+
+            <RadioButton
+                android:id="@+id/rbTempF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="°F" />
+
+            <RadioButton
+                android:id="@+id/rbTempK"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="°K" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wind_speed_units"
+            android:layout_marginTop="16dp" />
+
+        <RadioGroup
+            android:id="@+id/rgWindSpeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbWindMs"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="m/s" />
+
+            <RadioButton
+                android:id="@+id/rbWindKmh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="km/h" />
+
+            <RadioButton
+                android:id="@+id/rbWindMph"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mph" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/theme"
+            android:layout_marginTop="16dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/light_theme" />
+
+            <RadioButton
+                android:id="@+id/rbDark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dark_theme" />
+
+            <RadioButton
+                android:id="@+id/rbSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/system_default" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/save_changes"
+            android:layout_marginTop="24dp" />
+
+        <Button
+            android:id="@+id/btnFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_feedback"
+            android:text="@string/feedback"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>

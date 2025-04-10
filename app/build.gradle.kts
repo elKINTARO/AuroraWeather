@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.auroraweather"
-    compileSdkVersion(35)
+    compileSdk = 35
     defaultConfig {
         applicationId = "com.example.auroraweather"
         minSdkVersion(26)

@@ -14,6 +14,18 @@
         android:paddingBottom="24dp"
         tools:context="com.example.auroraweather.MainActivity">
 
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+        </LinearLayout>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/search_card"
             android:layout_width="0dp"
@@ -25,7 +37,7 @@
             app:cardElevation="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/topBar">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,10 +64,9 @@
                     android:layout_marginEnd="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:backgroundTint="@color/colorPrimary"
+                    style="@style/RoundFloatingActionButton"
                     app:fabSize="mini"
-                    app:srcCompat="@drawable/ic_search"
-                    app:tint="@android:color/white" />
+                    app:srcCompat="@drawable/ic_search" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/history_button"
@@ -65,10 +76,20 @@
                     android:layout_marginEnd="4dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:backgroundTint="@color/colorPrimary"
+                    style="@style/RoundFloatingActionButton"
                     app:fabSize="mini"
-                    app:srcCompat="@drawable/ic_history"
-                    app:tint="@android:color/white" />
+                    app:srcCompat="@drawable/ic_history" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/settings_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    style="@style/RoundFloatingActionButton"
+                    app:fabSize="mini"
+                    app:srcCompat="@drawable/ic_settings" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -256,9 +277,10 @@
             android:layout_marginTop="24dp"
             android:fontFamily="sans-serif-medium"
             android:text="Прогноз на 5 днів"
-            android:textColor="@android:color/white"
+            android:textColor="@color/textColorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
+            style="@style/TextViewWithOutline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/weather_card" />
 
