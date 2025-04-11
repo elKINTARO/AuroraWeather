@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -44,6 +45,7 @@ import com.example.auroraweather.models.CurrentWeather;
 import com.example.auroraweather.models.DailyForecast;
 import com.example.auroraweather.utils.AnimationHelper;
 import com.example.auroraweather.utils.BackgroundManager;
+import com.example.auroraweather.utils.LocalizationManager;
 import com.example.auroraweather.utils.WeatherIconMapper;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -97,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply localization
+        LocalizationManager.getInstance(this).updateLocale(this);
+        
         Log.d(TAG, "onCreate: Starting activity creation");
 
         // Apply theme before super.onCreate() and setContentView
@@ -166,11 +171,13 @@ public class MainActivity extends AppCompatActivity {
         windSpeedTextView = findViewById(R.id.wind_value);
         weatherAnimationView = findViewById(R.id.weather_animation);
         searchEditText = findViewById(R.id.search_edit_text);
+        searchEditText.setHint(LocalizationManager.getInstance(this).getString("search_hint"));
         searchButton = findViewById(R.id.search_button);
         historyButton = findViewById(R.id.history_button);
         forecastRecyclerView = findViewById(R.id.forecast_recycler_view);
         loadingAnimation = findViewById(R.id.loading_animation);
         forecastTitleTextView = findViewById(R.id.forecast_title);
+        forecastTitleTextView.setText(LocalizationManager.getInstance(this).getString("forecast_title"));
     }
 
     /**
@@ -256,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                 // Save last searched city
                 preferences.edit().putString(LAST_CITY_KEY, city).apply();
             } else {
-                Toast.makeText(MainActivity.this, "Будь ласка, введіть назву міста", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, LocalizationManager.getInstance(MainActivity.this).getString("please_enter_city"), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -309,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
                 getUserLocation();
             } else {
                 // Permission denied, use default city
-                Toast.makeText(this, "Використовується місто за замовчуванням - Київ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, LocalizationManager.getInstance(this).getString("default_city_used"), Toast.LENGTH_SHORT).show();
                 loadWeatherData("Kyiv");
                 preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
             }
@@ -333,14 +340,15 @@ public class MainActivity extends AppCompatActivity {
                             getCityNameFromLocation(location);
                         } else {
                             // Couldn't get location, use default city
-                            Toast.makeText(MainActivity.this, "Не вдалося отримати місцезнаходження. Використовується Київ за замовчуванням.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, LocalizationManager.getInstance(MainActivity.this).getString("location_error"), Toast.LENGTH_SHORT).show();
                             loadWeatherData("Kyiv");
                             preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(MainActivity.this, "Помилка отримання місцезнаходження: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    String errorMsg = LocalizationManager.getInstance(MainActivity.this).getString("location_error_with_message").replace("{0}", e.getMessage());
+                    Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                     loadWeatherData("Kyiv");
                     preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
                 });
@@ -378,7 +386,8 @@ public class MainActivity extends AppCompatActivity {
                 preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
             }
         } catch (IOException e) {
-            Toast.makeText(this, "Помилка геокодування: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            String errorMsg = LocalizationManager.getInstance(this).getString("geocoding_error").replace("{0}", e.getMessage());
+            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
             loadWeatherData("Kyiv");
             preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
         }
@@ -407,7 +416,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onError(String message) {
                         Log.e(TAG, "Error loading forecast: " + message);
-                        Toast.makeText(MainActivity.this, "Помилка завантаження прогнозу: " + message, Toast.LENGTH_SHORT).show();
+                        String errorMsg = LocalizationManager.getInstance(MainActivity.this).getString("forecast_error").replace("{0}", message);
+                        Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                         showLoading(false);
                     }
                 });
@@ -416,7 +426,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onError(String message) {
                 Log.e(TAG, "Error loading current weather: " + message);
-                Toast.makeText(MainActivity.this, "Помилка: " + message, Toast.LENGTH_SHORT).show();
+                String errorMsg = LocalizationManager.getInstance(MainActivity.this).getString("error").replace("{0}", message);
+                Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 showLoading(false);
             }
         });
@@ -442,7 +453,9 @@ public class MainActivity extends AppCompatActivity {
                 weatherDescriptionTextView.setText(weather.getDescription());
 
                 // Update date
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, d MMMM", new Locale("uk", "UA"));
+                // Use locale according to selected language
+                String languageCode = SettingsManager.getInstance(MainActivity.this).getLanguageCode();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, d MMMM", new Locale(languageCode, "UA"));
                 String formattedDate = dateFormat.format(new Date());
                 dateTextView.setText(formattedDate);
 
@@ -572,7 +585,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> history = getSearchHistory();
 
         if (history.isEmpty()) {
-            Toast.makeText(this, "Історія пошуку порожня", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, LocalizationManager.getInstance(this).getString("empty_history"), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -580,7 +593,7 @@ public class MainActivity extends AppCompatActivity {
         final String[] historyArray = history.toArray(new String[0]);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Історія пошуку");
+        builder.setTitle(LocalizationManager.getInstance(this).getString("search_history"));
 
         builder.setItems(historyArray, (dialog, which) -> {
             String selectedCity = historyArray[which];
@@ -589,10 +602,10 @@ public class MainActivity extends AppCompatActivity {
             preferences.edit().putString(LAST_CITY_KEY, selectedCity).apply();
         });
 
-        builder.setNegativeButton("Скасувати", null);
-        builder.setNeutralButton("Очистити історію", (dialog, which) -> {
+        builder.setNegativeButton(LocalizationManager.getInstance(this).getString("cancel"), null);
+        builder.setNeutralButton(LocalizationManager.getInstance(this).getString("clear_history"), (dialog, which) -> {
             clearSearchHistory();
-            Toast.makeText(MainActivity.this, "Історію пошуку очищено", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, LocalizationManager.getInstance(MainActivity.this).getString("history_cleared"), Toast.LENGTH_SHORT).show();
         });
 
         builder.show();

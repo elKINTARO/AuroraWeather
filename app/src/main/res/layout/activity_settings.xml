@@ -9,6 +9,7 @@
         android:padding="16dp">
 
         <TextView
+            android:id="@+id/tvSettingsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/settings_title"
@@ -16,6 +17,7 @@
             android:layout_marginBottom="16dp" />
 
         <TextView
+            android:id="@+id/tvTemperatureUnits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/temperature_units"
@@ -30,23 +32,21 @@
             <RadioButton
                 android:id="@+id/rbTempC"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="°C" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbTempF"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="°F" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbTempK"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="°K" />
+                android:layout_height="wrap_content" />
         </RadioGroup>
 
         <TextView
+            android:id="@+id/tvWindSpeedUnits"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/wind_speed_units"
@@ -61,23 +61,21 @@
             <RadioButton
                 android:id="@+id/rbWindMs"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="m/s" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbWindKmh"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="km/h" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbWindMph"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="mph" />
+                android:layout_height="wrap_content" />
         </RadioGroup>
 
         <TextView
+            android:id="@+id/tvTheme"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/theme"
@@ -92,27 +90,47 @@
             <RadioButton
                 android:id="@+id/rbLight"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/light_theme" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbDark"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dark_theme" />
+                android:layout_height="wrap_content" />
 
             <RadioButton
                 android:id="@+id/rbSystem"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/system_default" />
+                android:layout_height="wrap_content" />
+        </RadioGroup>
+        
+        <TextView
+            android:id="@+id/tvLanguage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/language"
+            android:layout_marginTop="16dp" />
+
+        <RadioGroup
+            android:id="@+id/rgLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbEnglish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/rbUkrainian"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </RadioGroup>
 
         <Button
             android:id="@+id/btnSave"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_changes"
             android:layout_marginTop="24dp" />
 
         <Button
@@ -120,7 +138,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_feedback"
-            android:text="@string/feedback"
             android:layout_marginTop="16dp" />
 
     </LinearLayout>

@@ -3,11 +3,14 @@ package com.example.auroraweather;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.auroraweather.utils.LocalizationManager;
+
 public class SettingsManager {
     private static final String PREFS_NAME = "aurora_settings";
     private static final String KEY_TEMP_UNIT = "temp_unit";
     private static final String KEY_WIND_UNIT = "wind_unit";
     private static final String KEY_THEME = "theme";
+    private static final String KEY_LANGUAGE = "language";
 
     // Constants for temperature units
     public static final int TEMP_CELSIUS = 0;
@@ -23,6 +26,10 @@ public class SettingsManager {
     public static final int THEME_LIGHT = 0;
     public static final int THEME_DARK = 1;
     public static final int THEME_SYSTEM = 2;
+    
+    // Constants for language
+    public static final int LANGUAGE_ENGLISH = 0;
+    public static final int LANGUAGE_UKRAINIAN = 1;
 
     private static SettingsManager instance;
     private SharedPreferences prefs;
@@ -65,6 +72,40 @@ public class SettingsManager {
     }
 
     /**
+     * Gets the language preference
+     * @return Language code (LANGUAGE_ENGLISH or LANGUAGE_UKRAINIAN)
+     */
+    public int getLanguagePreference() {
+        return prefs.getInt(KEY_LANGUAGE, LANGUAGE_ENGLISH);
+    }
+
+    /**
+     * Sets the language preference
+     * @param language Language code (LANGUAGE_ENGLISH or LANGUAGE_UKRAINIAN)
+     */
+    public void setLanguagePreference(int language) {
+        prefs.edit().putInt(KEY_LANGUAGE, language).apply();
+        
+        // Update the LocalizationManager with the new language
+        String languageCode = (language == LANGUAGE_UKRAINIAN) ? 
+                LocalizationManager.LANGUAGE_UKRAINIAN : 
+                LocalizationManager.LANGUAGE_ENGLISH;
+        
+        LocalizationManager.getInstance(context).setLanguage(languageCode);
+    }
+
+    /**
+     * Gets the language code based on the language preference
+     * @return Language code string ("en" or "uk")
+     */
+    public String getLanguageCode() {
+        int languagePref = getLanguagePreference();
+        return (languagePref == LANGUAGE_UKRAINIAN) ? 
+                LocalizationManager.LANGUAGE_UKRAINIAN : 
+                LocalizationManager.LANGUAGE_ENGLISH;
+    }
+
+    /**
      * Formats temperature according to user preference
      * @param tempCelsius Temperature in Celsius
      * @return Formatted temperature string with unit
@@ -103,19 +144,21 @@ public class SettingsManager {
         double convertedSpeed;
         String unitSymbol;
 
+        LocalizationManager localizationManager = LocalizationManager.getInstance(context);
+
         switch (unit) {
             case WIND_KMH:
                 convertedSpeed = msToKmh(windSpeedMs);
-                unitSymbol = "км/год";
+                unitSymbol = localizationManager.getString("unit_kmh");
                 break;
             case WIND_MPH:
                 convertedSpeed = msToMph(windSpeedMs);
-                unitSymbol = "миль/год";
+                unitSymbol = localizationManager.getString("unit_mph");
                 break;
             case WIND_MS:
             default:
                 convertedSpeed = windSpeedMs;
-                unitSymbol = "м/с";
+                unitSymbol = localizationManager.getString("unit_ms");
                 break;
         }
 

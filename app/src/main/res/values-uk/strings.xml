@@ -11,4 +11,10 @@
     <string name="system_default">Системна</string>
     <string name="save_changes">Зберегти зміни</string>
     <string name="feedback">Залишити відгук або запропонувати ідею</string>
+    <string name="language">Мова</string>
+    <string name="english">Англійська</string>
+    <string name="ukrainian">Українська</string>
+    <string name="unit_ms">м/с</string>
+    <string name="unit_kmh">км/год</string>
+    <string name="unit_mph">миль/год</string>
 </resources>

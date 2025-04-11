@@ -280,7 +280,7 @@
             android:textColor="@color/textColorPrimary"
             android:textSize="20sp"
             android:textStyle="bold"
-            style="@style/TextViewWithOutline"
+           style="@style/TextViewWithOutline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/weather_card" />
 

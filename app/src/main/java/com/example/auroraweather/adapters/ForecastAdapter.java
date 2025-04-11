@@ -16,9 +16,11 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.auroraweather.R;
 import com.example.auroraweather.SettingsManager;
 import com.example.auroraweather.models.DailyForecast;
+import com.example.auroraweather.utils.LocalizationManager;
 import com.example.auroraweather.utils.WeatherIconMapper;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -44,11 +46,12 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         Context context = holder.itemView.getContext();
 
         // Форматування дати
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEE", new Locale("uk", "UA"));
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
         Date forecastDate = new Date(forecast.getTimestamp());
-
-        holder.dayOfWeekTextView.setText(dayFormat.format(forecastDate));
+        
+        // Отримання локалізованого дня тижня
+        String dayOfWeek = getDayOfWeekLocalized(forecastDate, context);
+        holder.dayOfWeekTextView.setText(dayOfWeek);
         holder.dateTextView.setText(dateFormat.format(forecastDate));
         
         // Use SettingsManager to format temperature according to user preference
@@ -61,6 +64,36 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         
         // Ensure text visibility based on current theme
         ensureTextVisibility(holder, context);
+    }
+    
+    /**
+     * Отримує локалізовану назву дня тижня
+     */
+    private String getDayOfWeekLocalized(Date date, Context context) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        
+        LocalizationManager localizationManager = LocalizationManager.getInstance(context);
+        
+        switch (dayOfWeek) {
+            case Calendar.MONDAY:
+                return localizationManager.getString("monday");
+            case Calendar.TUESDAY:
+                return localizationManager.getString("tuesday");
+            case Calendar.WEDNESDAY:
+                return localizationManager.getString("wednesday");
+            case Calendar.THURSDAY:
+                return localizationManager.getString("thursday");
+            case Calendar.FRIDAY:
+                return localizationManager.getString("friday");
+            case Calendar.SATURDAY:
+                return localizationManager.getString("saturday");
+            case Calendar.SUNDAY:
+                return localizationManager.getString("sunday");
+            default:
+                return "";
+        }
     }
 
     @Override
