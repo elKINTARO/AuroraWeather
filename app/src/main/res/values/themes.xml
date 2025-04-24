@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.AuroraWeather" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.AuroraWeather" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Light theme colors -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

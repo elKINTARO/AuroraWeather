@@ -26,4 +26,10 @@
     <!-- Dark Theme Colors -->
     <color name="dark_background">#333333</color>
     <color name="textColorSecondaryDark">#737373</color>
+    
+    <!-- UV індекс кольори -->
+    <color name="uv_low">#4CAF50</color>          <!-- Зелений для низького UV -->
+    <color name="uv_medium">#FFC107</color>       <!-- Жовтий для середнього UV -->
+    <color name="uv_high">#FF9800</color>         <!-- Оранжевий для високого UV -->
+    <color name="uv_very_high">#F44336</color>    <!-- Червоний для дуже високого UV -->
 </resources>

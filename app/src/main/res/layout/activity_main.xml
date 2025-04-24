@@ -64,7 +64,8 @@
                     android:layout_marginEnd="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    style="@style/RoundFloatingActionButton"
+                    android:backgroundTint="?attr/colorButtonNormal"
+                    app:tint="@color/white"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/ic_search" />
 
@@ -76,7 +77,8 @@
                     android:layout_marginEnd="4dp"
                     android:clickable="true"
                     android:focusable="true"
-                    style="@style/RoundFloatingActionButton"
+                    android:backgroundTint="?attr/colorButtonNormal"
+                    app:tint="@color/white"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/ic_history" />
 
@@ -87,7 +89,8 @@
                     android:layout_gravity="center"
                     android:clickable="true"
                     android:focusable="true"
-                    style="@style/RoundFloatingActionButton"
+                    android:backgroundTint="?attr/colorButtonNormal"
+                    app:tint="@color/white"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/ic_settings" />
             </LinearLayout>
@@ -199,7 +202,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:orientation="horizontal"
-                    android:weightSum="2"
+                    android:weightSum="5"
                     app:layout_constraintTop_toBottomOf="@+id/divider">
 
                     <LinearLayout
@@ -218,19 +221,22 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="4dp"
                             android:text="Вологість"
                             android:textColor="@color/textColorSecondary"
-                            android:textSize="14sp" />
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
 
                         <TextView
                             android:id="@+id/humidity_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:textColor="@color/textColorPrimary"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
+                            android:maxLines="1"
                             tools:text="65%" />
                     </LinearLayout>
 
@@ -250,20 +256,131 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="4dp"
                             android:text="Вітер"
                             android:textColor="@color/textColorSecondary"
-                            android:textSize="14sp" />
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
 
                         <TextView
                             android:id="@+id/wind_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:textColor="@color/textColorPrimary"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
-                            tools:text="5.2 m/s" />
+                            android:maxLines="1"
+                            android:gravity="center"
+                            tools:text="5.2 м/с" />
+                    </LinearLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_pressure"
+                            app:tint="@color/colorAccent" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Тиск"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:id="@+id/pressure_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:gravity="center"
+                            tools:text="1020" />
+                    </LinearLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_visibility"
+                            app:tint="@color/colorAccent" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Видим."
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:id="@+id/visibility_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            android:gravity="center"
+                            tools:text="10+" />
+                    </LinearLayout>
+                    
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_uv"
+                            app:tint="@color/colorAccent" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="UV"
+                            android:textColor="@color/textColorSecondary"
+                            android:textSize="12sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+
+                        <TextView
+                            android:id="@+id/uv_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:maxLines="1"
+                            tools:text="5.2" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

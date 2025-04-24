@@ -82,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView humidityTextView;
     private TextView windSpeedTextView;
     private TextView forecastTitleTextView;
+    private TextView pressureTextView;
+    private TextView visibilityTextView;
+    private TextView uvIndexTextView;
     private LottieAnimationView weatherAnimationView;
     private EditText searchEditText;
     private FloatingActionButton searchButton;
@@ -169,6 +172,9 @@ public class MainActivity extends AppCompatActivity {
         dateTextView = findViewById(R.id.date);
         humidityTextView = findViewById(R.id.humidity_value);
         windSpeedTextView = findViewById(R.id.wind_value);
+        pressureTextView = findViewById(R.id.pressure_value);
+        visibilityTextView = findViewById(R.id.visibility_value);
+        uvIndexTextView = findViewById(R.id.uv_value);
         weatherAnimationView = findViewById(R.id.weather_animation);
         searchEditText = findViewById(R.id.search_edit_text);
         searchEditText.setHint(LocalizationManager.getInstance(this).getString("search_hint"));
@@ -461,7 +467,40 @@ public class MainActivity extends AppCompatActivity {
 
                 // Update additional info
                 humidityTextView.setText(String.format(Locale.getDefault(), "%d%%", weather.getHumidity()));
-                windSpeedTextView.setText(SettingsManager.getInstance(MainActivity.this).formatWindSpeed(weather.getWindSpeed()));
+                
+                // Форматування швидкості вітру
+                String windSpeedFormatted = SettingsManager.getInstance(MainActivity.this).formatWindSpeedCompact(weather.getWindSpeed());
+                windSpeedTextView.setText(windSpeedFormatted);
+                
+                // Форматування тиску - тільки число без одиниць виміру
+                pressureTextView.setText(String.format(Locale.getDefault(), "%d", weather.getPressure()));
+                
+                // Для відображення видимості - спрощений формат
+                float visibilityInKm = weather.getVisibility() / 1000.0f;
+                if (visibilityInKm >= 10) {
+                    visibilityTextView.setText("10+");
+                } else {
+                    visibilityTextView.setText(String.format(Locale.getDefault(), "%.1f", visibilityInKm));
+                }
+                
+                // Форматування UV-індексу з відповідним кольором
+                double uvIndex = weather.getUvIndex();
+                uvIndexTextView.setText(String.format(Locale.getDefault(), "%.1f", uvIndex));
+                
+                // Встановлення кольору для UV-індексу в залежності від його значення
+                if (uvIndex < 3) {
+                    // Низький рівень UV (зелений)
+                    uvIndexTextView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.uv_low));
+                } else if (uvIndex < 6) {
+                    // Середній рівень UV (жовтий)
+                    uvIndexTextView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.uv_medium));
+                } else if (uvIndex < 8) {
+                    // Високий рівень UV (оранжевий)
+                    uvIndexTextView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.uv_high));
+                } else {
+                    // Дуже високий рівень UV (червоний)
+                    uvIndexTextView.setTextColor(ContextCompat.getColor(MainActivity.this, R.color.uv_very_high));
+                }
 
                 // Set appropriate weather animation
                 String animationFile = WeatherIconMapper.getAnimationForWeatherCode(weather.getWeatherCode());

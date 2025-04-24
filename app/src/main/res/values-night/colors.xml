@@ -9,9 +9,13 @@
     <color name="dark_background" tools:ignore="MissingDefaultResource">#333333</color>
     <color name="textColorButton" tools:ignore="DuplicateDefinition,MissingDefaultResource">#808080</color>
 
-
-
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="textColorSecondary">#B3FFFFFF</color>
     <color name="dividerColor">#424242</color>
+    
+    <!-- UV індекс кольори -->
+    <color name="uv_low" tools:ignore="MissingDefaultResource">#4CAF50</color>
+    <color name="uv_medium" tools:ignore="MissingDefaultResource">#FFC107</color>
+    <color name="uv_high" tools:ignore="MissingDefaultResource">#FF9800</color>
+    <color name="uv_very_high" tools:ignore="MissingDefaultResource">#F44336</color>
 </resources>

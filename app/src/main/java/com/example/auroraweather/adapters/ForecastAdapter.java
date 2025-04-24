@@ -56,6 +56,9 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         
         // Use SettingsManager to format temperature according to user preference
         holder.temperatureTextView.setText(SettingsManager.getInstance(context).formatTemperature(forecast.getMaxTemperature()));
+        
+        // Set wind speed using the new formatWindSpeedCompact method
+        holder.windSpeedTextView.setText(SettingsManager.getInstance(context).formatWindSpeedCompact(forecast.getWindSpeed()));
 
         // Встановлення відповідної анімації
         String animationFile = WeatherIconMapper.getAnimationForWeatherCode(forecast.getWeatherCode());
@@ -105,6 +108,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         TextView dayOfWeekTextView;
         TextView dateTextView;
         TextView temperatureTextView;
+        TextView windSpeedTextView;
         LottieAnimationView weatherAnimationView;
 
         ForecastViewHolder(@NonNull View itemView) {
@@ -112,6 +116,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             dayOfWeekTextView = itemView.findViewById(R.id.day_of_week);
             dateTextView = itemView.findViewById(R.id.date);
             temperatureTextView = itemView.findViewById(R.id.temperature);
+            windSpeedTextView = itemView.findViewById(R.id.wind_speed);
             weatherAnimationView = itemView.findViewById(R.id.weather_animation);
         }
     }
@@ -130,6 +135,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             holder.dayOfWeekTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
             holder.dateTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorSecondaryDark));
             holder.temperatureTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
+            holder.windSpeedTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorSecondaryDark));
             
             // Make sure card background is appropriate for dark mode
             ((CardView)holder.itemView).setCardBackgroundColor(ContextCompat.getColor(context, R.color.dark_background));
@@ -138,6 +144,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             holder.dayOfWeekTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorPrimary));
             holder.dateTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorSecondary));
             holder.temperatureTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorPrimary));
+            holder.windSpeedTextView.setTextColor(ContextCompat.getColor(context, R.color.textColorSecondary));
             
             // Make sure card background is appropriate for light mode
             ((CardView)holder.itemView).setCardBackgroundColor(ContextCompat.getColor(context, android.R.color.white));

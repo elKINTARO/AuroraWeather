@@ -6,13 +6,15 @@ public class DailyForecast {
     private final double maxTemperature;
     private final int weatherCode;
     private final String description;
+    private final double windSpeed;
 
-    public DailyForecast(long timestamp, double minTemperature, double maxTemperature, int weatherCode, String description) {
+    public DailyForecast(long timestamp, double minTemperature, double maxTemperature, int weatherCode, String description, double windSpeed) {
         this.timestamp = timestamp;
         this.minTemperature = minTemperature;
         this.maxTemperature = maxTemperature;
         this.weatherCode = weatherCode;
         this.description = description;
+        this.windSpeed = windSpeed;
     }
 
     public long getTimestamp() {
@@ -33,5 +35,9 @@ public class DailyForecast {
 
     public String getDescription() {
         return description;
+    }
+
+    public double getWindSpeed() {
+        return windSpeed;
     }
 }

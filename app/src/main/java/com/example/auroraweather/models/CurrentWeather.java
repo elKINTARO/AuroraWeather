@@ -8,8 +8,12 @@ public class CurrentWeather {
     private final double windSpeed;
     private final int weatherCode;
     private final boolean isDay;
+    private final int pressure; // Атмосферний тиск в гПа
+    private final int visibility; // Видимість в метрах
+    private final double uvIndex; // Індекс UV
 
-    public CurrentWeather(String cityName, double temperature, String description, int humidity, double windSpeed, int weatherCode, boolean isDay) {
+    public CurrentWeather(String cityName, double temperature, String description, int humidity, double windSpeed, 
+                         int weatherCode, boolean isDay, int pressure, int visibility, double uvIndex) {
         this.cityName = cityName;
         this.temperature = temperature;
         this.description = description;
@@ -17,6 +21,9 @@ public class CurrentWeather {
         this.windSpeed = windSpeed;
         this.weatherCode = weatherCode;
         this.isDay = isDay;
+        this.pressure = pressure;
+        this.visibility = visibility;
+        this.uvIndex = uvIndex;
     }
 
     public String getCityName() {
@@ -45,5 +52,17 @@ public class CurrentWeather {
 
     public boolean isDay() {
         return isDay;
+    }
+    
+    public int getPressure() {
+        return pressure;
+    }
+    
+    public int getVisibility() {
+        return visibility;
+    }
+    
+    public double getUvIndex() {
+        return uvIndex;
     }
 }

@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.example.auroraweather.utils.LocalizationManager;
 
+import java.util.Locale;
+
 public class SettingsManager {
     private static final String PREFS_NAME = "aurora_settings";
     private static final String KEY_TEMP_UNIT = "temp_unit";
@@ -140,6 +142,33 @@ public class SettingsManager {
      * @return Formatted wind speed string with unit
      */
     public String formatWindSpeed(double windSpeedMs) {
+        int unit = getWindSpeedUnit();
+        double convertedSpeed;
+        String unitSymbol;
+
+        LocalizationManager localizationManager = LocalizationManager.getInstance(context);
+
+        switch (unit) {
+            case WIND_KMH:
+                convertedSpeed = msToKmh(windSpeedMs);
+                unitSymbol = localizationManager.getString("unit_kmh");
+                break;
+            case WIND_MPH:
+                convertedSpeed = msToMph(windSpeedMs);
+                unitSymbol = localizationManager.getString("unit_mph");
+                break;
+            case WIND_MS:
+            default:
+                convertedSpeed = windSpeedMs;
+                unitSymbol = localizationManager.getString("unit_ms");
+                break;
+        }
+
+        return String.format("%.1f %s", convertedSpeed, unitSymbol);
+    }
+
+    // Compact version for wind speed formatting
+    public String formatWindSpeedCompact(double windSpeedMs) {
         int unit = getWindSpeedUnit();
         double convertedSpeed;
         String unitSymbol;
