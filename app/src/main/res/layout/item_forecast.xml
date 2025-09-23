@@ -61,5 +61,7 @@
             android:textColor="@color/textColorSecondary"
             android:textSize="14sp"
             tools:text="5 м/с" />
+            
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

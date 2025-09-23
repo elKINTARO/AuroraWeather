@@ -14,10 +14,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -39,10 +42,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.auroraweather.adapters.ForecastAdapter;
+import com.example.auroraweather.adapters.HourlyAdapter;
 import com.example.auroraweather.api.OpenWeatherMapClient;
 import com.example.auroraweather.api.WeatherCallback;
 import com.example.auroraweather.models.CurrentWeather;
 import com.example.auroraweather.models.DailyForecast;
+import com.example.auroraweather.models.HourlyForecast;
 import com.example.auroraweather.utils.AnimationHelper;
 import com.example.auroraweather.utils.BackgroundManager;
 import com.example.auroraweather.utils.LocalizationManager;
@@ -86,11 +91,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView visibilityTextView;
     private TextView uvIndexTextView;
     private LottieAnimationView weatherAnimationView;
+    private View weatherFront;
+    private View weatherBack;
     private EditText searchEditText;
     private FloatingActionButton searchButton;
     private FloatingActionButton historyButton;
     private RecyclerView forecastRecyclerView;
     private ForecastAdapter forecastAdapter;
+    private RecyclerView hourlyRecyclerView;
+    private HourlyAdapter hourlyAdapter;
     private LottieAnimationView loadingAnimation;
     private BackgroundManager backgroundManager;
 
@@ -141,6 +150,9 @@ public class MainActivity extends AppCompatActivity {
         // Set up forecast RecyclerView
         setupForecastRecyclerView();
 
+        // Set up hourly recycler
+        setupHourlyRecyclerView();
+
         // Set up search button
         setupSearchButton();
 
@@ -166,6 +178,8 @@ public class MainActivity extends AppCompatActivity {
     private void initializeComponents() {
         mainLayout = findViewById(R.id.main_layout);
         weatherCard = findViewById(R.id.weather_card);
+        weatherFront = findViewById(R.id.weather_front);
+        weatherBack = findViewById(R.id.weather_back);
         cityNameTextView = findViewById(R.id.city_name);
         temperatureTextView = findViewById(R.id.temperature);
         weatherDescriptionTextView = findViewById(R.id.weather_description);
@@ -181,9 +195,43 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.search_button);
         historyButton = findViewById(R.id.history_button);
         forecastRecyclerView = findViewById(R.id.forecast_recycler_view);
+        hourlyRecyclerView = findViewById(R.id.hourly_recycler_view);
         loadingAnimation = findViewById(R.id.loading_animation);
         forecastTitleTextView = findViewById(R.id.forecast_title);
         forecastTitleTextView.setText(LocalizationManager.getInstance(this).getString("forecast_title"));
+        TextView hourlyTitle = findViewById(R.id.hourly_title);
+        if (hourlyTitle != null) {
+            hourlyTitle.setText(LocalizationManager.getInstance(this).getString("hourly_title"));
+        }
+        // Localize labels under icons
+        TextView humidityLabel = findViewById(R.id.humidity_label);
+        TextView windLabel = findViewById(R.id.wind_label);
+        TextView pressureLabel = findViewById(R.id.pressure_label);
+        TextView visibilityLabel = findViewById(R.id.visibility_label);
+        TextView uvLabel = findViewById(R.id.uv_label);
+        LocalizationManager lm = LocalizationManager.getInstance(this);
+        if (humidityLabel != null) humidityLabel.setText(lm.getString("humidity"));
+        if (windLabel != null) windLabel.setText(lm.getString("wind"));
+        if (pressureLabel != null) pressureLabel.setText(lm.getString("pressure"));
+        if (visibilityLabel != null) visibilityLabel.setText(lm.getString("visibility_short"));
+        if (uvLabel != null) uvLabel.setText(lm.getString("uv"));
+
+        // Flip on horizontal swipe over the enlarged touch area; no tap flipping
+        View weatherTouchArea = findViewById(R.id.weather_icon_touch_area);
+        attachSwipeFlip(weatherTouchArea);
+        // Also allow swipe on the back side and within the hourly list itself
+        attachSwipeFlip(weatherBack);
+        attachSwipeFlip(hourlyRecyclerView);
+        // Keep back hint to flip on tap for accessibility
+        View hourlyHint = findViewById(R.id.hourly_flip_hint);
+        if (hourlyHint != null) {
+            if (hourlyHint instanceof TextView) {
+                ((TextView) hourlyHint).setText(LocalizationManager.getInstance(this).getString("tap_to_flip_back"));
+            }
+            hourlyHint.setOnClickListener(v -> toggleFlip());
+        }
+
+        // Front-side swipe hint removed (reverted)
     }
 
     /**
@@ -239,6 +287,16 @@ public class MainActivity extends AppCompatActivity {
         forecastList = new ArrayList<>();
         forecastAdapter = new ForecastAdapter(forecastList);
         forecastRecyclerView.setAdapter(forecastAdapter);
+    }
+
+    private void setupHourlyRecyclerView() {
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        hourlyRecyclerView.setLayoutManager(layoutManager);
+        hourlyRecyclerView.setNestedScrollingEnabled(false);
+        hourlyRecyclerView.setHasFixedSize(false);
+
+        hourlyAdapter = new HourlyAdapter(new ArrayList<>(), SettingsManager.getInstance(this));
+        hourlyRecyclerView.setAdapter(hourlyAdapter);
     }
 
     private static class HorizontalSpaceItemDecoration extends RecyclerView.ItemDecoration {
@@ -362,38 +420,61 @@ public class MainActivity extends AppCompatActivity {
 
     private void getCityNameFromLocation(Location location) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses != null && addresses.size() > 0) {
-                String cityName = addresses.get(0).getLocality();
-                if (cityName != null && !cityName.isEmpty()) {
-                    loadWeatherData(cityName);
-                    // Add current city to search history
-                    addToSearchHistory(cityName);
-                    preferences.edit().putString(LAST_CITY_KEY, cityName).apply();
-                } else {
-                    // If couldn't get city name, try to use admin area or country name
-                    String alternativeName = addresses.get(0).getAdminArea();
-                    if (alternativeName == null || alternativeName.isEmpty()) {
-                        alternativeName = addresses.get(0).getCountryName();
-                    }
-                    if (alternativeName != null && !alternativeName.isEmpty()) {
-                        loadWeatherData(alternativeName);
-                        // Add alternative name to search history
-                        addToSearchHistory(alternativeName);
-                        preferences.edit().putString(LAST_CITY_KEY, alternativeName).apply();
-                    } else {
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geocoder.getFromLocation(lat, lon, 1, new Geocoder.GeocodeListener() {
+                @Override
+                public void onGeocode(List<Address> addresses) {
+                    runOnUiThread(() -> handleAddressesResult(addresses));
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        String errorMsg = LocalizationManager.getInstance(MainActivity.this).getString("geocoding_error").replace("{0}", errorMessage);
+                        Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                         loadWeatherData("Kyiv");
                         preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
-                    }
+                    });
                 }
-            } else {
+            });
+        } else {
+            try {
+                List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
+                handleAddressesResult(addresses);
+            } catch (IOException e) {
+                String errorMsg = LocalizationManager.getInstance(this).getString("geocoding_error").replace("{0}", e.getMessage());
+                Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
                 loadWeatherData("Kyiv");
                 preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
             }
-        } catch (IOException e) {
-            String errorMsg = LocalizationManager.getInstance(this).getString("geocoding_error").replace("{0}", e.getMessage());
-            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleAddressesResult(List<Address> addresses) {
+        if (addresses != null && addresses.size() > 0) {
+            String cityName = addresses.get(0).getLocality();
+            if (cityName != null && !cityName.isEmpty()) {
+                loadWeatherData(cityName);
+                addToSearchHistory(cityName);
+                preferences.edit().putString(LAST_CITY_KEY, cityName).apply();
+            } else {
+                String alternativeName = addresses.get(0).getAdminArea();
+                if (alternativeName == null || alternativeName.isEmpty()) {
+                    alternativeName = addresses.get(0).getCountryName();
+                }
+                if (alternativeName != null && !alternativeName.isEmpty()) {
+                    loadWeatherData(alternativeName);
+                    addToSearchHistory(alternativeName);
+                    preferences.edit().putString(LAST_CITY_KEY, alternativeName).apply();
+                } else {
+                    loadWeatherData("Kyiv");
+                    preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
+                }
+            }
+        } else {
             loadWeatherData("Kyiv");
             preferences.edit().putString(LAST_CITY_KEY, "Kyiv").apply();
         }
@@ -425,6 +506,19 @@ public class MainActivity extends AppCompatActivity {
                         String errorMsg = LocalizationManager.getInstance(MainActivity.this).getString("forecast_error").replace("{0}", message);
                         Toast.makeText(MainActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                         showLoading(false);
+                    }
+                });
+
+                // Load hourly forecast in parallel for back side
+                weatherClient.getHourlyForecast(city, new WeatherCallback<List<HourlyForecast>>() {
+                    @Override
+                    public void onSuccess(List<HourlyForecast> data) {
+                        updateHourlyUI(data);
+                    }
+
+                    @Override
+                    public void onError(String message) {
+                        Log.e(TAG, "Error loading hourly: " + message);
                     }
                 });
             }
@@ -555,6 +649,71 @@ public class MainActivity extends AppCompatActivity {
         // Animation for forecast list
         Animation slideInAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
         forecastRecyclerView.startAnimation(slideInAnimation);
+    }
+
+    private void updateHourlyUI(List<HourlyForecast> hours) {
+        if (hourlyAdapter == null) return;
+        List<HourlyForecast> current = new ArrayList<>(hours);
+        // replace data
+        // simple approach: new adapter
+        hourlyAdapter = new HourlyAdapter(current, SettingsManager.getInstance(this));
+        hourlyRecyclerView.setAdapter(hourlyAdapter);
+        hourlyAdapter.notifyDataSetChanged();
+    }
+
+    private boolean isFlipped = false;
+    private void attachSwipeFlip(View target) {
+        if (target == null) return;
+        final GestureDetector detector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) { return true; }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                if (Math.abs(distanceX) > Math.abs(distanceY) && target.getParent() != null) {
+                    target.getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null) return false;
+                float dx = e2.getX() - e1.getX();
+                if (Math.abs(dx) > 100 && Math.abs(velocityX) > 300) {
+                    toggleFlip();
+                    return true;
+                }
+                return false;
+            }
+        });
+        target.setOnTouchListener((v, event) -> detector.onTouchEvent(event));
+    }
+    private void toggleFlip() {
+        final View front = weatherFront;
+        final View back = weatherBack;
+        if (front == null || back == null) return;
+
+        float scale = getResources().getDisplayMetrics().density;
+        front.setCameraDistance(8000 * scale);
+        back.setCameraDistance(8000 * scale);
+
+        if (!isFlipped) {
+            front.animate().rotationY(90f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).withEndAction(() -> {
+                front.setVisibility(View.GONE);
+                back.setRotationY(-90f);
+                back.setVisibility(View.VISIBLE);
+                back.animate().rotationY(0f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+            }).start();
+        } else {
+            back.animate().rotationY(90f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).withEndAction(() -> {
+                back.setVisibility(View.GONE);
+                front.setRotationY(-90f);
+                front.setVisibility(View.VISIBLE);
+                front.animate().rotationY(0f).setDuration(350).setInterpolator(new AccelerateDecelerateInterpolator()).start();
+            }).start();
+        }
+        isFlipped = !isFlipped;
     }
 
     private void showLoading(boolean show) {

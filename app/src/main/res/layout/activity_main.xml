@@ -122,10 +122,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_card">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- Flip container to host front/back sides -->
+            <FrameLayout
+                android:id="@+id/weather_flip_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="24dp">
+                android:padding="0dp">
+
+                <!-- FRONT: existing current weather content -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/weather_front"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="24dp">
 
                 <TextView
                     android:id="@+id/city_name"
@@ -151,16 +160,25 @@
                     app:layout_constraintTop_toBottomOf="@+id/city_name"
                     tools:text="Четвер, 21 березня 2025" />
 
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/weather_animation"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                <FrameLayout
+                    android:id="@+id/weather_icon_touch_area"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
                     android:layout_marginTop="24dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/date"
-                    app:lottie_autoPlay="true"
-                    app:lottie_loop="true" />
+                    app:layout_constraintTop_toBottomOf="@+id/date">
+
+                    <com.airbnb.lottie.LottieAnimationView
+                        android:id="@+id/weather_animation"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_gravity="center"
+                        app:lottie_autoPlay="true"
+                        app:lottie_loop="true" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/temperature"
@@ -172,8 +190,9 @@
                     android:textSize="56sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/weather_animation"
+                    app:layout_constraintTop_toBottomOf="@+id/weather_icon_touch_area"
                     tools:text="23.5°C" />
+
 
                 <TextView
                     android:id="@+id/weather_description"
@@ -188,7 +207,8 @@
                     app:layout_constraintTop_toBottomOf="@+id/temperature"
                     tools:text="Переважно сонячно" />
 
-                <View
+
+                    <View
                     android:id="@+id/divider"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -219,6 +239,7 @@
                             app:tint="@color/colorAccent" />
 
                         <TextView
+                            android:id="@+id/humidity_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -238,6 +259,7 @@
                             android:textStyle="bold"
                             android:maxLines="1"
                             tools:text="65%" />
+
                     </LinearLayout>
 
                     <LinearLayout
@@ -254,6 +276,7 @@
                             app:tint="@color/colorAccent" />
 
                         <TextView
+                            android:id="@+id/wind_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -290,6 +313,7 @@
                             app:tint="@color/colorAccent" />
 
                         <TextView
+                            android:id="@+id/pressure_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -326,6 +350,7 @@
                             app:tint="@color/colorAccent" />
 
                         <TextView
+                            android:id="@+id/visibility_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -362,6 +387,7 @@
                             app:tint="@color/colorAccent" />
 
                         <TextView
+                            android:id="@+id/uv_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -383,7 +409,62 @@
                             tools:text="5.2" />
                     </LinearLayout>
                 </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <TextView
+                    android:id="@+id/swipe_hint_front"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/swipe_hint"
+                    android:textSize="12sp"
+                    android:textColor="@color/textColorSecondary"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/details_layout" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <!-- BACK: hourly forecast list -->
+                <LinearLayout
+                    android:id="@+id/weather_back"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/hourly_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Погодинний прогноз"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textColorPrimary" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/hourly_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginTop="12dp"
+                        android:overScrollMode="never"
+                        android:nestedScrollingEnabled="false"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp" />
+
+                    <!-- Hint: tap to flip back -->
+                    <TextView
+                        android:id="@+id/hourly_flip_hint"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Торкніться, щоб повернутись"
+                        android:textSize="12sp"
+                        android:textColor="@color/textColorSecondary" />
+
+                </LinearLayout>
+
+            </FrameLayout>
         </androidx.cardview.widget.CardView>
 
         <TextView

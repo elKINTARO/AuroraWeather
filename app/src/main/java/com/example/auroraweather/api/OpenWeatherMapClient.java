@@ -10,6 +10,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.auroraweather.models.CurrentWeather;
 import com.example.auroraweather.models.DailyForecast;
+import com.example.auroraweather.models.HourlyForecast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,14 +26,17 @@ public class OpenWeatherMapClient {
     private static final String ONE_CALL_URL = "https://api.openweathermap.org/data/3.0/onecall";
 
     private final RequestQueue requestQueue;
+    private final Context context;
 
     public OpenWeatherMapClient(Context context) {
-        requestQueue = Volley.newRequestQueue(context);
+        this.context = context.getApplicationContext();
+        requestQueue = Volley.newRequestQueue(this.context);
     }
 
     public void getCurrentWeather(String city, final WeatherCallback<CurrentWeather> callback) {
+        String lang = com.example.auroraweather.SettingsManager.getInstance(context).getLanguageCode();
         // Спочатку отримуємо координати для міста
-        String geoUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=" + API_KEY;
+        String geoUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=1&appid=" + API_KEY + "&lang=" + lang;
         
         // Використовуємо JsonArrayRequest замість JsonObjectRequest, оскільки відповідь - це JSON масив
         JsonArrayRequest geoRequest = new JsonArrayRequest(Request.Method.GET, geoUrl, null,
@@ -46,13 +50,13 @@ public class OpenWeatherMapClient {
                             String cityName = location.getString("name");
                             
                             // Отримуємо поточну погоду, використовуючи координати
-                            String weatherUrl = BASE_URL + "weather?lat=" + lat + "&lon=" + lon + "&units=metric&appid=" + API_KEY;
+                            String weatherUrl = BASE_URL + "weather?lat=" + lat + "&lon=" + lon + "&units=metric&appid=" + API_KEY + "&lang=" + lang;
                             
                             JsonObjectRequest weatherRequest = new JsonObjectRequest(Request.Method.GET, weatherUrl, null,
                                     weatherResponse -> {
                                         try {
                                             // Отримуємо дані індексу UV через OneCall API
-                                            String oneCallUrl = ONE_CALL_URL + "?lat=" + lat + "&lon=" + lon + "&exclude=minutely,hourly,daily,alerts&units=metric&appid=" + API_KEY;
+                                            String oneCallUrl = ONE_CALL_URL + "?lat=" + lat + "&lon=" + lon + "&exclude=minutely,hourly,daily,alerts&units=metric&appid=" + API_KEY + "&lang=" + lang;
                                             
                                             JsonObjectRequest uvRequest = new JsonObjectRequest(Request.Method.GET, oneCallUrl, null,
                                                     uvResponse -> {
@@ -117,7 +121,8 @@ public class OpenWeatherMapClient {
     }
 
     public void getForecast(String city, final WeatherCallback<List<DailyForecast>> callback) {
-        String url = BASE_URL + "forecast?q=" + city + "&units=metric&appid=" + API_KEY;
+        String lang = com.example.auroraweather.SettingsManager.getInstance(context).getLanguageCode();
+        String url = BASE_URL + "forecast?q=" + city + "&units=metric&appid=" + API_KEY + "&lang=" + lang;
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
@@ -132,6 +137,28 @@ public class OpenWeatherMapClient {
                 error -> {
                     Log.e(TAG, "Error fetching forecast data", error);
                     callback.onError("Не вдалося завантажити прогноз. Перевірте з'єднання.");
+                });
+
+        requestQueue.add(request);
+    }
+
+    public void getHourlyForecast(String city, final WeatherCallback<List<HourlyForecast>> callback) {
+        String lang = com.example.auroraweather.SettingsManager.getInstance(context).getLanguageCode();
+        String url = BASE_URL + "forecast?q=" + city + "&units=metric&appid=" + API_KEY + "&lang=" + lang;
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        List<HourlyForecast> forecast = parseHourlyForecastResponse(response);
+                        callback.onSuccess(forecast);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Error parsing hourly forecast data", e);
+                        callback.onError("Помилка обробки погодинного прогнозу");
+                    }
+                },
+                error -> {
+                    Log.e(TAG, "Error fetching hourly forecast data", error);
+                    callback.onError("Не вдалося завантажити погодинний прогноз. Перевірте з'єднання.");
                 });
 
         requestQueue.add(request);
@@ -202,6 +229,36 @@ public class OpenWeatherMapClient {
                 DailyForecast forecast = new DailyForecast(timestamp, tempMin, tempMax, weatherCode, description, windSpeed);
                 forecasts.add(forecast);
             }
+        }
+
+        return forecasts;
+    }
+
+    private List<HourlyForecast> parseHourlyForecastResponse(JSONObject response) throws JSONException {
+        List<HourlyForecast> forecasts = new ArrayList<>();
+        JSONArray list = response.getJSONArray("list");
+
+        // Візьмемо перші 8 записів (приблизно 24 години з кроком 3 години)
+        int limit = Math.min(8, list.length());
+        for (int i = 0; i < limit; i++) {
+            JSONObject item = list.getJSONObject(i);
+            long timestamp = item.getLong("dt") * 1000; // мс
+
+            JSONObject main = item.getJSONObject("main");
+            double temp = main.getDouble("temp");
+
+            JSONArray weatherArray = item.getJSONArray("weather");
+            JSONObject weather = weatherArray.getJSONObject(0);
+            int weatherCode = weather.getInt("id");
+            String description = weather.getString("description");
+
+            double windSpeed = 0.0;
+            if (item.has("wind")) {
+                JSONObject wind = item.getJSONObject("wind");
+                windSpeed = wind.getDouble("speed");
+            }
+
+            forecasts.add(new HourlyForecast(timestamp, temp, weatherCode, description, windSpeed));
         }
 
         return forecasts;

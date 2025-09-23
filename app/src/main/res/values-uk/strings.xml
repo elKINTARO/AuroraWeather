@@ -17,4 +17,5 @@
     <string name="unit_ms">м/с</string>
     <string name="unit_kmh">км/год</string>
     <string name="unit_mph">миль/год</string>
+    <string name="swipe_hint">Проведіть вправо/вліво</string>
 </resources>
