@@ -205,8 +205,8 @@ implementation 'com.google.code.gson:gson:2.10.1'
 ## 👨‍💻 Автор
 
 **Aurora Weather Team**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@elKINTARO](https://github.com/elKINTARO)
+- Email: fedotovpoliyt@gmail.com
 
 ## 🙏 Подяки
 
