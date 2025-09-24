@@ -225,11 +225,4 @@ implementation 'com.google.code.gson:gson:2.10.1'
 
 ---
 
-<div align="center">
 
-**⭐ Якщо вам подобається проект, поставте зірочку! ⭐**
-
-[![GitHub stars](https://img.shields.io/github/stars/yourusername/aurora-weather?style=social)](https://github.com/yourusername/aurora-weather/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/yourusername/aurora-weather?style=social)](https://github.com/yourusername/aurora-weather/network/members)
-
-</div>
