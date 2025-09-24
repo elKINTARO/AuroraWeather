@@ -210,8 +210,6 @@ public void getCurrentWeather(String city, WeatherCallback callback) {
 
 1. **Оновіть README.md** якщо потрібно
 2. **Додайте коментарі до коду**
-3. **Оновіть CHANGELOG.md**
-4. **Додайте скриншоти** якщо змінився UI
 
 ### Структура комітів
 
