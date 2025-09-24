@@ -272,8 +272,8 @@ test: add unit tests for WeatherManager
 
 - **GitHub Issues** - для bug reports та feature requests
 - **GitHub Discussions** - для загальних питань
-- **Telegram** - [@auroraweather](https://t.me/auroraweather)
-- **Email** - your.email@example.com
+- **Telegram** - [@kintxbwm](https://t.me/kintxbwm)
+- **Email** - fedorovpoliyt@gmail.com
 
 ### Часті питання
 
@@ -285,13 +285,6 @@ A: Додайте Lottie файл в `assets/` та оновіть `WeatherIconM
 
 **Q: Як додати нову метрику погоди?**
 A: Оновіть модель `CurrentWeather` та UI компоненти.
-
-## 🎉 Визнання
-
-Всі контрибутори будуть згадані в:
-- README.md
-- CHANGELOG.md
-- GitHub Contributors
 
 ## 📄 Ліцензія
 
