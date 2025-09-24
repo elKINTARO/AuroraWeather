@@ -428,9 +428,8 @@ adb logcat -c
 - [Volley Documentation](https://developer.android.com/training/volley)
 
 ### Підтримка
-- **GitHub Issues**: [Створити issue](https://github.com/yourusername/aurora-weather/issues)
 - **Telegram**: [@auroraweather](https://t.me/auroraweather)
-- **Email**: your.email@example.com
+- **Email**: fedotovpoliyt@gmail.com
 
 ---
 
