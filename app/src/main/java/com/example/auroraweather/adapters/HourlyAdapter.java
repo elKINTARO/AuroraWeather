@@ -55,6 +55,12 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.HourlyView
         return items.size();
     }
 
+    public void updateData(List<HourlyForecast> newItems) {
+        items.clear();
+        items.addAll(newItems);
+        notifyDataSetChanged();
+    }
+
     public static class HourlyViewHolder extends RecyclerView.ViewHolder {
         TextView time;
         LottieAnimationView icon;

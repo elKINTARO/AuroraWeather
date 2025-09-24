@@ -17,8 +17,11 @@ import com.example.auroraweather.utils.LocalizationManager;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    // UI Components
     private RadioGroup rgTemperature, rgWindSpeed, rgTheme, rgLanguage;
-    private Button btnSave, btnFeedback;
+    private Button btnSave, btnFeedback, btnExit;
+    
+    // State
     private boolean settingsChanged = false;
 
     @Override
@@ -39,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
         rgLanguage = findViewById(R.id.rgLanguage);
         btnSave = findViewById(R.id.btnSave);
         btnFeedback = findViewById(R.id.btnFeedback);
+        btnExit = findViewById(R.id.btnExit);
         
         // Встановлюємо локалізовані тексти для заголовків
         ((TextView)findViewById(R.id.tvSettingsTitle)).setText(localizationManager.getString("settings_title"));
@@ -130,6 +134,14 @@ public class SettingsActivity extends AppCompatActivity {
                 // Redirect to Telegram group
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/auroraweather"));
                 startActivity(browserIntent);
+            }
+        });
+
+        btnExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Return to MainActivity
+                finish();
             }
         });
     }

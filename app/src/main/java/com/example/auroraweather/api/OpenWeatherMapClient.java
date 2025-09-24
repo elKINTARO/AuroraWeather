@@ -24,6 +24,9 @@ public class OpenWeatherMapClient {
     private static final String API_KEY = "47b3867d61b81a3ba1b3bf943f11dc62"; // Потрібно замінити на ваш ключ API
     private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/";
     private static final String ONE_CALL_URL = "https://api.openweathermap.org/data/3.0/onecall";
+    
+    // Cache timeout in milliseconds (5 minutes)
+    private static final long CACHE_TIMEOUT = 5 * 60 * 1000;
 
     private final RequestQueue requestQueue;
     private final Context context;
@@ -145,11 +148,14 @@ public class OpenWeatherMapClient {
     public void getHourlyForecast(String city, final WeatherCallback<List<HourlyForecast>> callback) {
         String lang = com.example.auroraweather.SettingsManager.getInstance(context).getLanguageCode();
         String url = BASE_URL + "forecast?q=" + city + "&units=metric&appid=" + API_KEY + "&lang=" + lang;
+        Log.d(TAG, "Loading hourly forecast for: " + city + " with URL: " + url);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 response -> {
                     try {
+                        Log.d(TAG, "Hourly forecast API response received");
                         List<HourlyForecast> forecast = parseHourlyForecastResponse(response);
+                        Log.d(TAG, "Parsed " + forecast.size() + " hourly forecast items");
                         callback.onSuccess(forecast);
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing hourly forecast data", e);

@@ -4,12 +4,10 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -19,13 +17,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MAX_HISTORY_ITEMS = 10;
     private static final String LAST_CITY_KEY = "LastCitySearched"; // Added to remember last city
 
+    // UI Components
     private ConstraintLayout mainLayout;
     private CardView weatherCard;
     private TextView cityNameTextView;
@@ -97,10 +93,14 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton searchButton;
     private FloatingActionButton historyButton;
     private RecyclerView forecastRecyclerView;
-    private ForecastAdapter forecastAdapter;
     private RecyclerView hourlyRecyclerView;
-    private HourlyAdapter hourlyAdapter;
     private LottieAnimationView loadingAnimation;
+    
+    // Adapters
+    private ForecastAdapter forecastAdapter;
+    private HourlyAdapter hourlyAdapter;
+    
+    // Managers
     private BackgroundManager backgroundManager;
 
     private OpenWeatherMapClient weatherClient;
@@ -216,22 +216,8 @@ public class MainActivity extends AppCompatActivity {
         if (visibilityLabel != null) visibilityLabel.setText(lm.getString("visibility_short"));
         if (uvLabel != null) uvLabel.setText(lm.getString("uv"));
 
-        // Flip on horizontal swipe over the enlarged touch area; no tap flipping
-        View weatherTouchArea = findViewById(R.id.weather_icon_touch_area);
-        attachSwipeFlip(weatherTouchArea);
-        // Also allow swipe on the back side and within the hourly list itself
-        attachSwipeFlip(weatherBack);
-        attachSwipeFlip(hourlyRecyclerView);
-        // Keep back hint to flip on tap for accessibility
-        View hourlyHint = findViewById(R.id.hourly_flip_hint);
-        if (hourlyHint != null) {
-            if (hourlyHint instanceof TextView) {
-                ((TextView) hourlyHint).setText(LocalizationManager.getInstance(this).getString("tap_to_flip_back"));
-            }
-            hourlyHint.setOnClickListener(v -> toggleFlip());
-        }
-
-        // Front-side swipe hint removed (reverted)
+        // Set up flip buttons
+        setupFlipButtons();
     }
 
     /**
@@ -337,6 +323,25 @@ public class MainActivity extends AppCompatActivity {
             AnimationHelper.bounceAnimation(historyButton);
             showSearchHistory();
         });
+    }
+
+    private void setupFlipButtons() {
+        FloatingActionButton flipButtonFront = findViewById(R.id.flip_button_front);
+        FloatingActionButton flipButtonBack = findViewById(R.id.flip_button_back);
+        
+        if (flipButtonFront != null) {
+            flipButtonFront.setOnClickListener(v -> {
+                AnimationHelper.bounceAnimation(flipButtonFront);
+                toggleFlip();
+            });
+        }
+        
+        if (flipButtonBack != null) {
+            flipButtonBack.setOnClickListener(v -> {
+                AnimationHelper.bounceAnimation(flipButtonBack);
+                toggleFlip();
+            });
+        }
     }
 
     private void setupSearchTextWatcher() {
@@ -513,6 +518,7 @@ public class MainActivity extends AppCompatActivity {
                 weatherClient.getHourlyForecast(city, new WeatherCallback<List<HourlyForecast>>() {
                     @Override
                     public void onSuccess(List<HourlyForecast> data) {
+                        Log.d(TAG, "Hourly forecast loaded successfully with " + data.size() + " items");
                         updateHourlyUI(data);
                     }
 
@@ -620,31 +626,26 @@ public class MainActivity extends AppCompatActivity {
     private void ensureTextVisibility() {
         if (isInDarkMode()) {
             Log.d(TAG, "Ensuring text visibility in dark mode");
-            cityNameTextView.setTextColor(ContextCompat.getColor(this, R.color.white));
-            temperatureTextView.setTextColor(ContextCompat.getColor(this, R.color.white));
-            weatherDescriptionTextView.setTextColor(ContextCompat.getColor(this, R.color.white));
-            dateTextView.setTextColor(ContextCompat.getColor(this, R.color.white));
-            forecastTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.white));
-
-            // Make sure card background is appropriate for dark mode
-            weatherCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.dark_background));
+            setTextColors(R.color.white, R.color.white, R.color.white, R.color.white, R.color.white);
+            weatherCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.card_background_dark));
         } else {
             Log.d(TAG, "Ensuring text visibility in light mode");
-            cityNameTextView.setTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
-            temperatureTextView.setTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
-            weatherDescriptionTextView.setTextColor(ContextCompat.getColor(this, R.color.textColorSecondary));
-            dateTextView.setTextColor(ContextCompat.getColor(this, R.color.textColorSecondary));
-            forecastTitleTextView.setTextColor(ContextCompat.getColor(this, R.color.textColorPrimary));
-
-            // Make sure card background is appropriate for light mode
-            weatherCard.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.white));
+            setTextColors(R.color.textColorPrimary, R.color.textColorPrimary, R.color.textColorSecondary, 
+                         R.color.textColorSecondary, R.color.textColorPrimary);
+            weatherCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.card_background_light));
         }
+    }
+    
+    private void setTextColors(int cityColor, int tempColor, int descColor, int dateColor, int titleColor) {
+        cityNameTextView.setTextColor(ContextCompat.getColor(this, cityColor));
+        temperatureTextView.setTextColor(ContextCompat.getColor(this, tempColor));
+        weatherDescriptionTextView.setTextColor(ContextCompat.getColor(this, descColor));
+        dateTextView.setTextColor(ContextCompat.getColor(this, dateColor));
+        forecastTitleTextView.setTextColor(ContextCompat.getColor(this, titleColor));
     }
 
     private void updateForecastUI(List<DailyForecast> forecast) {
-        forecastList.clear();
-        forecastList.addAll(forecast);
-        forecastAdapter.notifyDataSetChanged();
+        forecastAdapter.updateData(forecast);
 
         // Animation for forecast list
         Animation slideInAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
@@ -652,43 +653,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateHourlyUI(List<HourlyForecast> hours) {
-        if (hourlyAdapter == null) return;
-        List<HourlyForecast> current = new ArrayList<>(hours);
-        // replace data
-        // simple approach: new adapter
-        hourlyAdapter = new HourlyAdapter(current, SettingsManager.getInstance(this));
-        hourlyRecyclerView.setAdapter(hourlyAdapter);
-        hourlyAdapter.notifyDataSetChanged();
+        Log.d(TAG, "updateHourlyUI called with " + (hours != null ? hours.size() : 0) + " items");
+        if (hourlyAdapter == null) {
+            Log.e(TAG, "hourlyAdapter is null!");
+            return;
+        }
+        if (hourlyRecyclerView == null) {
+            Log.e(TAG, "hourlyRecyclerView is null!");
+            return;
+        }
+        if (hours == null || hours.isEmpty()) {
+            Log.w(TAG, "No hourly forecast data to display");
+            return;
+        }
+        
+        // Update existing adapter data instead of creating new one
+        hourlyAdapter.updateData(hours);
+        Log.d(TAG, "Hourly forecast UI updated successfully");
     }
 
     private boolean isFlipped = false;
-    private void attachSwipeFlip(View target) {
-        if (target == null) return;
-        final GestureDetector detector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent e) { return true; }
-
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                if (Math.abs(distanceX) > Math.abs(distanceY) && target.getParent() != null) {
-                    target.getParent().requestDisallowInterceptTouchEvent(true);
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null || e2 == null) return false;
-                float dx = e2.getX() - e1.getX();
-                if (Math.abs(dx) > 100 && Math.abs(velocityX) > 300) {
-                    toggleFlip();
-                    return true;
-                }
-                return false;
-            }
-        });
-        target.setOnTouchListener((v, event) -> detector.onTouchEvent(event));
-    }
     private void toggleFlip() {
         final View front = weatherFront;
         final View back = weatherBack;

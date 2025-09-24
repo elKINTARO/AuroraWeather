@@ -32,4 +32,12 @@
     <color name="uv_medium">#FFC107</color>       <!-- Жовтий для середнього UV -->
     <color name="uv_high">#FF9800</color>         <!-- Оранжевий для високого UV -->
     <color name="uv_very_high">#F44336</color>    <!-- Червоний для дуже високого UV -->
+    
+    <!-- Button Colors -->
+    <color name="button_background">#4A80F0</color>
+    <color name="button_pressed">#3562BE</color>
+    
+    <!-- Card Colors -->
+    <color name="card_background_light">#FFFFFF</color>
+    <color name="card_background_dark">#2D2D2D</color>
 </resources>
